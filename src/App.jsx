@@ -1,4 +1,3 @@
-/* eslint-disable */
 import { useState } from 'react';
 import './App.scss';
 
@@ -72,12 +71,16 @@ export const App = () => {
   };
 
   const handleCategoryClick = handlerCategoryId => () => {
-    setCategoryTab([...categoryTab, handlerCategoryId]);
+    if (categoryTab.includes(handlerCategoryId)) {
+      setCategoryTab([...categoryTab]
+        .filter(id => id !== handlerCategoryId));
+    } else {
+      setCategoryTab([...categoryTab, handlerCategoryId]);
+    }
   };
 
-  const handleCategoryUnclick = handlerCategoryId => () => {
-    setCategoryTab([...categoryTab]
-      .filter(cat => cat.id !== handlerCategoryId));
+  const handleAllCategoriesClick = () => () => {
+    setCategoryTab([]);
   };
 
   const handleResetClick = () => () => {
@@ -88,13 +91,24 @@ export const App = () => {
     setQuery('');
   };
 
-  const handleReveresedClick = () => () => {
-    setIsReversed(!isReversed);
+  const handleSortType = handlerSortType => () => {
+    if (handlerSortType === sortType) {
+      setIsReversed(!isReversed);
+    } else {
+      setSortType(handlerSortType);
+    }
   };
 
-  const handleQuery = event => () => {
+  const handleQuery = (event) => {
     setQuery(event.target.value);
   };
+
+  const productsAdjusted = getReorderOption(products, sortType, isReversed)
+    .filter(product => product.name.toLowerCase()
+      .includes(query.toLowerCase())
+      && (product.user.id === userId || userId === 0)
+      && (categoryTab
+        .includes(product.category.id) || categoryTab.length === 0));
 
   return (
     <div className="section">
@@ -144,7 +158,7 @@ export const App = () => {
                   className="input"
                   placeholder="Search"
                   value={query}
-                  onChange={handleQuery}
+                  onChange={event => handleQuery(event)}
                 />
 
                 <span className="icon is-left">
@@ -167,6 +181,7 @@ export const App = () => {
                 href="#/"
                 data-cy="AllCategories"
                 className="button is-success mr-6 is-outlined"
+                onClick={handleAllCategoriesClick()}
               >
                 All
               </a>
@@ -175,6 +190,7 @@ export const App = () => {
                 data-cy="Category"
                 className="button mr-2 my-1 is-info"
                 href="#/"
+                onClick={handleCategoryClick(1)}
               >
                 Category 1
               </a>
@@ -183,6 +199,7 @@ export const App = () => {
                 data-cy="Category"
                 className="button mr-2 my-1"
                 href="#/"
+                onClick={handleCategoryClick(2)}
               >
                 Category 2
               </a>
@@ -191,6 +208,7 @@ export const App = () => {
                 data-cy="Category"
                 className="button mr-2 my-1 is-info"
                 href="#/"
+                onClick={handleCategoryClick(3)}
               >
                 Category 3
               </a>
@@ -198,6 +216,7 @@ export const App = () => {
                 data-cy="Category"
                 className="button mr-2 my-1"
                 href="#/"
+                onClick={handleCategoryClick(4)}
               >
                 Category 4
               </a>
@@ -230,7 +249,10 @@ export const App = () => {
                   <span className="is-flex is-flex-wrap-nowrap">
                     ID
 
-                    <a href="#/">
+                    <a
+                      href="#/"
+                      onClick={handleSortType('ID')}
+                    >
                       <span className="icon">
                         <i data-cy="SortIcon" className="fas fa-sort" />
                       </span>
@@ -242,7 +264,10 @@ export const App = () => {
                   <span className="is-flex is-flex-wrap-nowrap">
                     Product
 
-                    <a href="#/">
+                    <a
+                      href="#/"
+                      onClick={handleSortType('PRODUCT')}
+                    >
                       <span className="icon">
                         <i data-cy="SortIcon" className="fas fa-sort-down" />
                       </span>
@@ -254,7 +279,10 @@ export const App = () => {
                   <span className="is-flex is-flex-wrap-nowrap">
                     Category
 
-                    <a href="#/">
+                    <a
+                      href="#/"
+                      onClick={handleSortType('CATEGORY')}
+                    >
                       <span className="icon">
                         <i data-cy="SortIcon" className="fas fa-sort-up" />
                       </span>
@@ -266,7 +294,10 @@ export const App = () => {
                   <span className="is-flex is-flex-wrap-nowrap">
                     User
 
-                    <a href="#/">
+                    <a
+                      href="#/"
+                      onClick={handleSortType('USER')}
+                    >
                       <span className="icon">
                         <i data-cy="SortIcon" className="fas fa-sort" />
                       </span>
@@ -277,23 +308,30 @@ export const App = () => {
             </thead>
 
             <tbody>
-              <tr data-cy="Product">
-                <td className="has-text-weight-bold" data-cy="ProductId">
-                  1
-                </td>
+              {productsAdjusted.map(product => (
+                <tr data-cy="Product">
+                  <td className="has-text-weight-bold" data-cy="ProductId">
+                    {product.id}
+                  </td>
 
-                <td data-cy="ProductName">Milk</td>
-                <td data-cy="ProductCategory">🍺 - Drinks</td>
+                  <td data-cy="ProductName">{product.name}</td>
+                  {/* // 🍺 */}
+                  <td data-cy="ProductCategory">
+                    {product.category.icon}
+                    {' - '}
+                    {product.category.title}
+                  </td>
 
-                <td
-                  data-cy="ProductUser"
-                  className="has-text-link"
-                >
-                  Max
-                </td>
-              </tr>
+                  <td
+                    data-cy="ProductUser"
+                    className="has-text-link"
+                  >
+                    {product.user.name}
+                  </td>
+                </tr>
+              ))}
 
-              <tr data-cy="Product">
+              {/* <tr data-cy="Product">
                 <td className="has-text-weight-bold" data-cy="ProductId">
                   2
                 </td>
@@ -323,7 +361,7 @@ export const App = () => {
                 >
                   Roma
                 </td>
-              </tr>
+              </tr> */}
             </tbody>
           </table>
         </div>
