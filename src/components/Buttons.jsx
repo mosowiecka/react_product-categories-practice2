@@ -1,7 +1,8 @@
 /* eslint-disable */
-export const Buttons = ({ categoryTab,
+import { Button } from './Button';
+export const Buttons = ({ categories, categoryTab,
   handleCategoryClick, handleCategoryUnclick }) => {
-  return (
+    return (
     <div className="panel-block is-flex-wrap-wrap">
       <a
         href="#/"
@@ -10,6 +11,9 @@ export const Buttons = ({ categoryTab,
       >
         All
       </a>
+
+      {categories
+      .map(cat => <Button key={cat.id} cat={cat} />)}
 
       <a
         data-cy="Category"
